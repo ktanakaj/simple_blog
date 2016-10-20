@@ -1,0 +1,7 @@
+.vagrant
+.project
+.settings
+*.log
+*.bak
+playbook.retry
+!.gitkeep
