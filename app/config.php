@@ -3,9 +3,9 @@
  * 簡易ブログアプリ「Simple Blog」
  *
  * @package    SimpleBlog
- * @version    0.1
+ * @version    0.2
  * @author     Koichi Tanaka
- * @copyright  Copyright © 2014 Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
  */
 
 // ※ 以下の値は環境に合わせて変更する
@@ -34,7 +34,7 @@ define('ADMIN_ROOT', BLOG_ROOT . '/admin');
 define('APP_CHARSET', 'UTF-8');
 
 /** DB接続用のDSN。 */
-define('DATA_SOURCE_NAME', 'mysql:host=gladius;dbname=simple_blog');
+define('DATA_SOURCE_NAME', 'mysql:host=localhost;dbname=simple_blog');
 /** DB接続用のユーザー名。 */
 define('DB_USER', 'simple_blog');
 /** DB接続用のパスワード。 */

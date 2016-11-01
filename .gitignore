@@ -1,6 +1,7 @@
 .vagrant
 .project
 .settings
+.buildpath
 *.log
 *.bak
 playbook.retry

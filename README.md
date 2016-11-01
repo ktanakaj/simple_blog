@@ -1,5 +1,5 @@
 # Simple Blog
-PHPを用いた簡易ブログです。2014年に某所でPHPでフレームワーク無しで何か作ってみて、という課題で作成。
+PHPを用いた簡易ブログです。2014年に某所でPHP5でフレームワーク無しで何か作ってみて、という課題で作成。公開時PHP7.1化。
 
 簡易ブログということで、複数人が使うものではなく、自分のレンタルサーバー等にインストールして自分のブログ用に使う一人用のものをイメージしています。
 
@@ -23,9 +23,11 @@ PHPを用いた簡易ブログです。2014年に某所でPHPでフレームワ�
 （簡易ブログアプリとして最低限あるべきだ、と思った機能を実装。ただし、個々の機能はそれほど作り込んではいない。）
 
 ## 動作環境
-動作環境はPHP 5.4とApache 2.2, MySQL 5.5で、画面表示はIE11やChromeで確認。
+動作環境はPHP 7.1とApache 2.4, MariaDB 5.5で、画面表示はEdgeやChromeで確認。
 
 DBを作成した後、`app/simple_blog.sql` でテーブル等を作成して実行してください。
+
+添付の`Vagrantfile`で、DB含めて動作する状態の開発環境が作成されます。
 
 ## ソース解説
 * `app/` - アプリのルート
@@ -56,4 +58,4 @@ Twitter連携については、TwitterOAuth を使用しています。
 `vender` 以下のソースについては `doc/LICENSE_TwitterOAuth.txt` 記載のライセンスに従ってください。
 
 ## ライセンス
-[MIT](https://github.com/ktanakaj/debugform/blob/master/LICENSE)
+[MIT](https://github.com/ktanakaj/simple_blog/blob/master/LICENSE)
