@@ -118,9 +118,9 @@ class Twitter extends OAuth
 	 *
 	 * ユーザー情報はAPIからも取れるが、呼び出し回数を消費するため。
 	 * @param array $timeline タイムライン。配列だが、timeline()の戻り値をそのまま渡してもよい。
-	 * @return object ユーザー情報。取得失敗時はnull。
+	 * @return stdClass ユーザー情報。取得失敗時はnull。
 	 */
-	public function userFromTimeline(?array $timeline) : ?object {
+	public function userFromTimeline(?array $timeline) : ?stdClass {
 		if (empty($timeline)) {
 			return null;
 		}

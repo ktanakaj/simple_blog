@@ -46,6 +46,8 @@
           yum: name=php-pdo state=latest
         - name: Install the latest version of php-mysqlnd
           yum: name=php-mysqlnd state=latest
+        - name: Install the latest version of php-mbstring
+          yum: name=php-mbstring state=latest
         - name: Install the latest version of Apache
           yum: name=httpd state=latest
         - name: Install the latest version of MariaDB
@@ -62,7 +64,7 @@
         - name: Action to enable service Apache
           service: name=httpd state=restarted enabled=yes
       - block:
-        - name: Action to disable SELinux for nginx
+        - name: Action to disable SELinux for Apache
           selinux: state=permissive policy=targeted
         - name: Action to enable service firewalld
           service: name=firewalld state=started enabled=yes
