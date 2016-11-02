@@ -4,9 +4,9 @@
  *
  * @package    SimpleBlog
  * @subpackage controllers
- * @version    0.1
+ * @version    0.2
  * @author     Koichi Tanaka
- * @copyright  Copyright © 2014 Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
  */
 require_once(dirname(__FILE__) . '/../controllerbase.php');
 
@@ -14,17 +14,17 @@ require_once(dirname(__FILE__) . '/../controllerbase.php');
  * ベーシック認証用のレスポンスを返しプログラムを終了する。
  * @return void
  */
-function exitForAuth() {
+function exitForAuth() : void {
 	header('WWW-Authenticate: Basic realm="' . APP_NAME . '"');
 	exitForError('HTTP/1.0 401 Unauthorized', 'Authorization Required', 'ブログを編集するには、登録したメールアドレスとパスワードを入力してください。');
 }
 
 /**
  * リダイレクト用のレスポンスを返しプログラムを終了する。
- * @param $url リダイレクト先URL。
+ * @param string $url リダイレクト先URL。
  * @return void
  */
-function exitForRedirect($url) {
+function exitForRedirect(string $url) : void {
 	header("Location: $url");
 	exit;
 }

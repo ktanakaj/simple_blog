@@ -4,9 +4,9 @@
  *
  * @package    SimpleBlog
  * @subpackage controllers
- * @version    0.1
+ * @version    0.2
  * @author     Koichi Tanaka
- * @copyright  Copyright © 2014 Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
  */
 require_once(dirname(__FILE__) . '/controllerbase.php');
 
@@ -53,6 +53,8 @@ if ($twitter) {
 }
 
 // タグ情報のウィジェットも出力
-$widget .= render('tag', ['tags' => Tag::findByBlogId($blog->id)]);
+if ($blog->id) {
+	$widget .= render('tag', ['tags' => Tag::findByBlogId($blog->id)]);
+}
 
 echo render('template', ['body' => $body, 'title' => $blog->title, 'widget' => $widget]);

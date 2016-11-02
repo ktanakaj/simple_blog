@@ -4,9 +4,9 @@
  *
  * @package    SimpleBlog
  * @subpackage controllers
- * @version    0.1
+ * @version    0.2
  * @author     Koichi Tanaka
- * @copyright  Copyright © 2014 Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
  */
 
 /** アプリケーションのルートとなるパス。 */
@@ -19,7 +19,7 @@ define('VIEWS_DIR', APP_ROOT . 'views/');
 require_once(APP_ROOT . '/config.php');
 
 // クラスの自動読み込みの設定
-spl_autoload_register(function($class) {
+spl_autoload_register(function(string $class) : bool {
 	// 名前空間は使用しないという前提のもと簡略化
 	$paths = [
 		APP_ROOT . strtolower($class) . '.php',
@@ -43,7 +43,7 @@ spl_autoload_register(function($class) {
  * @param array $data ビューに渡すパラメータ。変数に展開される。
  * @return string 出力したビュー。
  */
-function render($view, array $data = []) {
+function render(string $view, array $data = []) : string {
 	extract($data);
 	ob_start();
 	require VIEWS_DIR . $view . '.php';
@@ -54,9 +54,9 @@ function render($view, array $data = []) {
 
 /**
  * リクエストがPOSTによるものか？
- * @return boolean POSTの場合true, それ以外はfalse。
+ * @return bool POSTの場合true, それ以外はfalse。
  */
-function isPost() {
+function isPost() : bool {
 	return $_SERVER["REQUEST_METHOD"] === "POST";
 }
 
@@ -65,18 +65,18 @@ function isPost() {
  * プログラムは終了しない。
  * @return void
  */
-function headerForNotFound() {
+function headerForNotFound() : void {
 	header('HTTP/1.0 404 Not Found');
 }
 
 /**
  * エラー用のHTTPヘッダーとエラー画面を出力し、プログラムを終了する。
- * @param $header string 出力するHTTPヘッダー。デフォルトは500エラー。
- * @param $subject string エラーの見出し。
- * @param $message string エラーメッセージ。
+ * @param string $header 出力するHTTPヘッダー。デフォルトは500エラー。
+ * @param string $subject エラーの見出し。
+ * @param string $message エラーメッセージ。
  * @return void
  */
-function exitForError($header = 'HTTP/1.0 500 Internal Server Error', $subject = '', $message = '') {
+function exitForError(string $header = 'HTTP/1.0 500 Internal Server Error', string $subject = '', string $message = '') : void {
 	header($header);
 	echo render('error', ['subject' => $subject, 'message' => $message]);
 	exit;
@@ -86,7 +86,7 @@ function exitForError($header = 'HTTP/1.0 500 Internal Server Error', $subject =
  * GETパラメータからページ番号を取得する。
  * @return int 取得したページ番号、未指定や不正な値には1を返す。
  */
-function getPage() {
+function getPage() : int {
 	$page = 1;
 	if (!empty($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) {
 		$page = (int) $_GET['page'];
@@ -96,10 +96,10 @@ function getPage() {
 
 /**
  * 元々のGETパラメータを復元した文字列を返す。
- * @param $ignores mixed 復元しないパラメータ。配列で複数指定可能。 
+ * @param mixed $ignores 復元しないパラメータ。配列で複数指定可能。
  * @return string GETパラメータ、URLエンコードが実施された値。
  */
-function getOriginalParams($ignores = []) {
+function getOriginalParams($ignores = []) : string {
 	$str = '';
 	if (!is_array($ignores)) {
 		$ignores = [$ignores];

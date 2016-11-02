@@ -4,17 +4,17 @@
  *
  * @package    SimpleBlog
  * @subpackage models
- * @version    0.1
+ * @version    0.2
  * @author     Koichi Tanaka
- * @copyright  Copyright © 2014 Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
  */
 
 /**
  * ブログ全体の情報を扱うモデルクラス。
- * 
+ *
  * DBの"BLOGS"テーブルに相当する。
  * ブログ名や所有者の情報を持つ。
- * 
+ *
  * @package  SimpleBlog
  */
 class Blog extends ModelBase
@@ -22,29 +22,29 @@ class Blog extends ModelBase
 	/**
 	 * ブログIDからブログ情報を取得する。
 	 * @param int $id ブログID。
-	 * @return mixed ブログ情報、取得失敗時はfalse。
+	 * @return Blog ブログ情報、取得失敗時はnull。
 	 */
-	public static function findById($id) {
-		return parent::getModel("SELECT * FROM BLOGS WHERE ID = :id", ['id' => (int) $id]);
+	public static function findById(int $id) : ?Blog {
+		return parent::getModel("SELECT * FROM BLOGS WHERE ID = :id", ['id' => $id]);
 	}
 
 	/**
 	 * メールアドレスからブログ情報を取得する。
 	 * @param string $mailAddress メールアドレス。
-	 * @return mixed ブログ情報、取得失敗時はfalse。
+	 * @return Blog ブログ情報、取得失敗時はnull。
 	 */
-	public static function findByMailAddress($mailAddress) {
+	public static function findByMailAddress(string $mailAddress) : ?Blog {
 		return parent::getModel("SELECT * FROM BLOGS WHERE MAIL_ADDRESS = :mail_address", ['mail_address' => $mailAddress]);
 	}
 
 	/**
 	 * ブログ情報を1件取得する。
-	 * 
+	 *
 	 * 現行のアプリは1ブログしか想定していないため。
 	 * 一応、必ずIDの若いブログを返す。
-	 * @return mixed ブログ情報、取得失敗時はfalse。
+	 * @return Blog ブログ情報、取得失敗時はnull。
 	 */
-	public static function findAtHead() {
+	public static function findAtHead() : ?Blog {
 		return parent::getModel("SELECT * FROM BLOGS ORDER BY ID LIMIT 1");
 	}
 
@@ -52,20 +52,20 @@ class Blog extends ModelBase
 	 * ブログ情報の登録件数を返す。
 	 * @return int 登録件数。
 	 */
-	public static function count() {
+	public static function count() : int {
 		$row = parent::getRow("SELECT COUNT(*) AS CNT FROM BLOGS");
 		return $row['cnt'];
 	}
 
 	/**
 	 * ブログ情報をDBに保存する。
-	 * 
+	 *
 	 * 保存前にはバリデートを行う。
 	 * ブログIDが設定されている場合はINSERTを、
 	 * 設定されていない場合はUPDATEを実行する。
-	 * @return boolean 保存が成功した場合true、失敗した場合false。
+	 * @return bool 保存が成功した場合true、失敗した場合false。
 	 */
-	public function save() {
+	public function save() : bool {
 		if (!$this->validate()) {
 			return false;
 		}
@@ -79,9 +79,9 @@ class Blog extends ModelBase
 
 	/**
 	 * 有効なブログ情報かのチェックを行う。
-	 * @return boolean 問題ない場合はtrue、不可の場合はfalse。
+	 * @return bool 問題ない場合はtrue、不可の場合はfalse。
 	 */
-	protected function validate() {
+	protected function validate() : bool {
 		$this->errors = [];
 		$this->addErrorIfBlank('title', 'タイトル');
 		$this->addErrorIfBlank('mail_address', 'メールアドレス');
@@ -98,9 +98,9 @@ class Blog extends ModelBase
 
 	/**
 	 * ブログ情報をDBに登録する。
-	 * @return boolean 保存が成功した場合true、失敗した場合false。
+	 * @return bool 保存が成功した場合true、失敗した場合false。
 	 */
-	protected function insert() {
+	protected function insert() : bool {
 		return parent::executeAndGetId(
 				"INSERT INTO BLOGS (TITLE, MAIL_ADDRESS, PASSWORD)"
 				. " VALUES (:title, :mail_address, :password)",
@@ -113,9 +113,9 @@ class Blog extends ModelBase
 
 	/**
 	 * ブログ情報をDBに上書きする。
-	 * @return boolean 保存が成功した場合true、失敗した場合false。
+	 * @return bool 保存が成功した場合true、失敗した場合false。
 	 */
-	protected function update() {
+	protected function update() : bool {
 		$query = "UPDATE BLOGS SET TITLE = :title"
 				. ", MAIL_ADDRESS = :mail_address";
 		$data = [
@@ -136,23 +136,23 @@ class Blog extends ModelBase
 
 	/**
 	 * 指定されたメールアドレスとパスワードのブログが登録されているか認証する。
-	 * 
+	 *
 	 * 認証成功時は最終ログイン日時を更新する。
 	 * @param string $mailAddress メールアドレス。
 	 * @param string $password 平文パスワード。
-	 * @return boolean 認証OKの場合そのブログ、不可の場合false。
+	 * @return Blog 認証OKの場合そのブログ、不可の場合null。
 	 */
-	public static function authorize($mailAddress, $password) {
+	public static function authorize(string $mailAddress, string $password) : ?Blog {
 		$blog = self::findByMailAddress($mailAddress);
 		if (!$blog) {
-			return false;
+			return null;
 		}
 		if (crypt($password, $blog->password) === $blog->password) {
 			// 最終ログイン日時を更新、モデルは前回の値を表示したいので更新しない
 			$blog->touch();
 			return $blog;
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -160,15 +160,15 @@ class Blog extends ModelBase
 	 * @param string $raw 平文パスワード。
 	 * @return void
 	 */
-	public function setHashPassword($raw) {
+	public function setHashPassword(string $raw) : void {
 		$this->password = crypt($raw);
 	}
 
 	/**
 	 * ブログ管理者の最終ログイン日時を更新する。
-	 * @return boolean 更新が成功した場合true、失敗した場合false。
+	 * @return bool 更新が成功した場合true、失敗した場合false。
 	 */
-	protected function touch() {
+	protected function touch() : bool {
 		return parent::execute(
 				"UPDATE BLOGS SET LAST_LOGIN = NOW() WHERE ID = :id",
 				['id' => (int) $this->id]);
@@ -179,10 +179,10 @@ class Blog extends ModelBase
 	 * @param int $page ページ番号、未指定時は全て。デフォルトは未指定。
 	 * @param int $pageMax 1ページ当たりの表示件数。
 	 * @param string $tag タグによる絞り込みを行う場合のタグ名。
-	 * @param boolean $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
+	 * @param bool $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
 	 * @return array ブログ記事の配列。
 	 */
-	public function contents($page = null, $pageMax = 10, $tag = null, $public = true) {
+	public function contents(int $page = null, int $pageMax = 10, ?string $tag = null, bool $public = true) : array {
 		if (empty($this->id)) {
 			return [];
 		}
@@ -192,10 +192,10 @@ class Blog extends ModelBase
 	/**
 	 * ブログに登録されている記事数を取得する。
 	 * @param string $tag タグによる絞り込みを行う場合のタグ名。
-	 * @param boolean $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
+	 * @param bool $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
 	 * @return int 記事の件数。
 	 */
-	public function countContents($tag = null, $public = true) {
+	public function countContents(?string $tag = null, bool $public = true) : int {
 		if (empty($this->id)) {
 			return 0;
 		}
@@ -204,10 +204,10 @@ class Blog extends ModelBase
 
 	/**
 	 * ブログに登録されている記事の全タグ名を取得する。
-	 * @param boolean $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
+	 * @param bool $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
 	 * @return array タグの配列。
 	 */
-	public function tags($public = true) {
+	public function tags(bool $public = true) : array {
 		if (empty($this->id)) {
 			return [];
 		}
@@ -216,11 +216,11 @@ class Blog extends ModelBase
 
 	/**
 	 * ブログのTwitter認証情報を取得する。
-	 * @return mixed 認証情報、取得失敗時はfalse。
+	 * @return Twitter 認証情報、取得失敗時はnull。
 	 */
-	public function twitterAuth() {
+	public function twitterAuth() : ?Twitter {
 		if (empty($this->id)) {
-			return false;
+			return null;
 		}
 		return Twitter::findByBlogId($this->id);
 	}

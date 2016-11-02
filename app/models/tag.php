@@ -4,17 +4,17 @@
  *
  * @package    SimpleBlog
  * @subpackage models
- * @version    0.1
+ * @version    0.2
  * @author     Koichi Tanaka
- * @copyright  Copyright © 2014 Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
  */
 
 /**
  * ブログ記事のタグ情報を扱うモデルクラス。
- * 
+ *
  * DBの"TAGS"テーブルに相当する。
  * タグ名やIDの情報を持つ。
- * 
+ *
  * @package  SimpleBlog
  */
 class Tag extends ModelBase
@@ -24,7 +24,7 @@ class Tag extends ModelBase
 	 * @param mixed $contentId コンテンツID、複数指定してまとめて検索も可（IN句の限界まで可）。
 	 * @return array タグの配列。
 	 */
-	public static function find($contentId) {
+	public static function find($contentId) : array {
 		$query = "SELECT * FROM TAGS WHERE CONTENT_ID";
 		$data = [];
 		if (is_array($contentId)) {
@@ -49,24 +49,24 @@ class Tag extends ModelBase
 	/**
 	 * ブログIDからそのコンテンツと紐づく全タグを取得する。
 	 * @param int $blogId ブログID
-	 * @param boolean $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
+	 * @param bool $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
 	 * @return array タグの配列。
 	 */
-	public static function findByBlogId($blogId, $public = true) {
+	public static function findByBlogId(int $blogId, bool $public = true) : array {
 		$query = "SELECT DISTINCT t.NAME FROM TAGS t JOIN CONTENTS c ON c.ID = t.CONTENT_ID"
 				. " WHERE c.BLOG_ID = :blog_id";
 		if ($public) {
 			$query .= " AND c.DATE < NOW() AND c.VISIBLE = TRUE";
 		}
 		$query .= " ORDER BY t.NAME";
-		return parent::getModels($query, ['blog_id' => (int) $blogId]);
+		return parent::getModels($query, ['blog_id' => $blogId]);
 	}
 
 	/**
 	 * タグ情報をDBに登録する。
-	 * @return boolean 保存が成功した場合true、失敗した場合false。
+	 * @return bool 保存が成功した場合true、失敗した場合false。
 	 */
-	public function insert() {
+	public function insert() : bool {
 		return parent::execute(
 				"INSERT INTO TAGS (CONTENT_ID, NAME) VALUES (:content_id, :name)",
 				[
@@ -77,12 +77,12 @@ class Tag extends ModelBase
 
 	/**
 	 * コンテンツに紐づくタグ情報を削除する。
-	 * @param $contentId コンテンツID。
-	 * @return boolean 削除が成功した場合true、失敗した場合false。
+	 * @param int $contentId コンテンツID。
+	 * @return bool 削除が成功した場合true、失敗した場合false。
 	 */
-	public static function deleteByContentId($contentId) {
+	public static function deleteByContentId(int $contentId) : bool {
 		return parent::execute(
 				"DELETE FROM TAGS WHERE CONTENT_ID = :content_id",
-				['content_id' => (int) $contentId]);
+				['content_id' => $contentId]);
 	}
 }

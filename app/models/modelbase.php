@@ -4,15 +4,15 @@
  *
  * @package    SimpleBlog
  * @subpackage models
- * @version    0.1
+ * @version    0.2
  * @author     Koichi Tanaka
- * @copyright  Copyright © 2014 Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
  */
 require_once(dirname(__FILE__) . '/../config.php');
 
 /**
  * モデルクラスの基盤を提供する抽象クラス。
- * 
+ *
  * モデルはActive Recordパターン風の実装とする。
  * PDOは薄くしか隠蔽しない。
  *
@@ -31,14 +31,14 @@ abstract class ModelBase {
 
 	/**
 	 * PDOでのDB接続を取得する。
-	 * 
+	 *
 	 * 接続が開始されていない場合のみ接続を取得、
 	 * それ以外は取得済みの接続を返す。
 	 * 一度のリクエストでは常に同じ接続が返される。
-	 * 
+	 *
 	 * @return PDO PDOのDB接続。
 	 */
-	protected static function db() {
+	protected static function db() : PDO {
 		$retry = 3;
 		while (is_null(self::$_db)) {
 			// DBに接続。持続的接続でかつエラー時は例外を投げる
@@ -64,19 +64,19 @@ abstract class ModelBase {
 	 * データを取得するためのSELECT文を実行し、1行を取得する。
 	 * @param string $query SQL文。パラメータは名前付けされたプレースホルダの形で指定する必要がある。
 	 * @param array $data 名前付けプレースホルダ用のパラメータ。
-	 * @return mixed 検索結果を格納した配列、検索失敗時はfalse。
+	 * @return array 検索結果を格納した配列、検索失敗時はnull。
 	 */
-	protected static function getRow($query, array $data = []) {
+	protected static function getRow(string $query, array $data = []) : ?array {
 		return self::select($query, $data, false, true);
 	}
-	
+
 	/**
 	 * データを取得するためのSELECT文を実行し、全行を取得する。
 	 * @param string $query SQL文。パラメータは名前付けされたプレースホルダの形で指定する必要がある。
 	 * @param array $data 名前付けプレースホルダ用のパラメータ。
-	 * @return mixed 検索結果を格納した配列の配列、検索失敗時はfalse。
+	 * @return array 検索結果を格納した配列の配列、検索失敗時はnull。
 	 */
-	protected static function getRows($query, array $data = []) {
+	protected static function getRows(string $query, array $data = []) : ?array {
 		return self::select($query, $data, true, true);
 	}
 
@@ -87,9 +87,9 @@ abstract class ModelBase {
 	 * 
 	 * @param string $query SQL文。パラメータは名前付けされたプレースホルダの形で指定する必要がある。
 	 * @param array $data 名前付けプレースホルダ用のパラメータ。
-	 * @return mixed 検索結果を格納したモデルクラスのオブジェクト、検索失敗時はfalse。
+	 * @return ModelBase 検索結果を格納したモデルクラスのオブジェクト、検索失敗時はnull。
 	 */
-	protected static function getModel($query, array $data = []) {
+	protected static function getModel(string $query, array $data = []) : ?ModelBase {
 		return self::select($query, $data);
 	}
 
@@ -100,9 +100,9 @@ abstract class ModelBase {
 	 * 
 	 * @param string $query SQL文。パラメータは名前付けされたプレースホルダの形で指定する必要がある。
 	 * @param array $data 名前付けプレースホルダ用のパラメータ。
-	 * @return mixed 検索結果を格納したモデルクラスのオブジェクトの配列、検索失敗時はfalse。
+	 * @return array 検索結果を格納したモデルクラスのオブジェクトの配列、検索失敗時はnull。
 	 */
-	protected static function getModels($query, array $data = []) {
+	protected static function getModels(string $query, array $data = []) : ?array {
 		return self::select($query, $data, true);
 	}
 
@@ -110,24 +110,25 @@ abstract class ModelBase {
 	 * 指定されたSELECT文を実行し、結果を取得する。
 	 * @param string $query SQL文。パラメータは名前付けされたプレースホルダの形で指定する必要がある。
 	 * @param array $data 名前付けプレースホルダ用のパラメータ。
-	 * @param boolean $all 結果を全て取得する場合true、1件のみはfalse。デフォルトはfalse。
-	 * @param boolean $array 結果を配列で取得する場合true、実装クラスのオブジェクト型で取得する場合false。デフォルトはfalse。
-	 * @return mixed 検索結果を格納した1行分のオブジェクトまたは配列、もしくはそれを格納した配列、検索失敗時はfalse。
+	 * @param bool $all 結果を全て取得する場合true、1件のみはfalse。デフォルトはfalse。
+	 * @param bool $array 結果を配列で取得する場合true、実装クラスのオブジェクト型で取得する場合false。デフォルトはfalse。
+	 * @return mixed 検索結果を格納した1行分のオブジェクトまたは配列、もしくはそれを格納した配列、検索失敗時はnull。
 	 */
-	private static function select($query, array $data, $all = false, $array = false) {
+	private static function select(string $query, array $data, bool $all = false, bool $array = false) {
 		$stmt = self::prepareAndBindValues($query, $data);
 		if (!$stmt->execute()) {
-			return false;
+			return null;
 		}
 		if (!$array) {
 			$stmt->setFetchMode(PDO::FETCH_CLASS, get_called_class());
 		}
 		if ($all) {
-			return $stmt->fetchAll();
+			$result = $stmt->fetchAll();
+			return $result !== FALSE ? $result : null;
 		} else {
 			$row = $stmt->fetch();
 			$stmt->closeCursor();
-			return $row;
+			return $row !== FALSE ? $row : null;
 		}
 	}
 
@@ -135,9 +136,9 @@ abstract class ModelBase {
 	 * 指定されたSQL文を実行する。
 	 * @param string $query SQL文。パラメータは名前付けされたプレースホルダの形で指定する必要がある。
 	 * @param array $data 名前付けプレースホルダ用のパラメータ。
-	 * @return boolean SQL成功時 true, 失敗時false。
+	 * @return bool SQL成功時 true, 失敗時false。
 	 */
-	protected static function execute($query, array $data = []) {
+	protected static function execute(string $query, array $data = []) : bool {
 		return self::prepareAndBindValues($query, $data)->execute();
 	}
 
@@ -147,7 +148,7 @@ abstract class ModelBase {
 	 * @param array $data 名前付けプレースホルダ用のパラメータ。
 	 * @return PDOStatement パラメータを設定したプリペアドステートメント。
 	 */
-	private static function prepareAndBindValues($query, array $data) {
+	private static function prepareAndBindValues(string $query, array $data) : PDOStatement {
 		$stmt = self::db()->prepare($query);
 		foreach ($data as $key => $value) {
 			$dataType = PDO::PARAM_STR;
@@ -168,9 +169,9 @@ abstract class ModelBase {
 	 * @param string $query SQL文。パラメータは名前付けされたプレースホルダの形で指定する必要がある。
 	 * @param array $data 名前付けプレースホルダ用のパラメータ。
 	 * @param string $property ID値のプロパティ名。デフォルトは'id'。
-	 * @return boolean INSERT成功時true、失敗時false。
+	 * @return bool INSERT成功時true、失敗時false。
 	 */
-	protected function executeAndGetId($query, array $data = [], $property = 'id') {
+	protected function executeAndGetId(string $query, array $data = [], string $property = 'id') : bool {
 		$result = self::execute($query, $data);
 		if ($result) {
 			$this->{$property} = self::db()->lastInsertId();
@@ -180,27 +181,27 @@ abstract class ModelBase {
 
 	/**
 	 * マジックプロパティのセッター。
-	 * 
+	 *
 	 * セッターは特に何もせず、普通に値を格納する。
 	 *
 	 * @param string $property プロパティ名。
 	 * @param mixed $value プロパティ値。
 	 * @return void
 	 */
-	public function __set($property, $value) {
+	public function __set(string $property, $value) : void {
 		$this->_data[$property] = $value;
 	}
 
 	/**
 	 * マジックプロパティのゲッター。
-	 * 
+	 *
 	 * 設定されていないプロパティを指定した場合、nullを返す。
 	 * （普通のプロパティだと警告が出る。）
 	 *
 	 * @param string $property プロパティ名。
 	 * @return mixed プロパティ値、存在しないプロパティの場合null。
 	 */
-	public function __get($property) {
+	public function __get(string $property) {
 		if (isset($this->_data[$property])) {
 			return $this->_data[$property];
 		}
@@ -210,9 +211,9 @@ abstract class ModelBase {
 	/**
 	 * マジックプロパティの設定有無確認。
 	 * @param string $property プロパティ名。
-	 * @return boolean プロパティが存在する場合true, しない場合false。
+	 * @return bool プロパティが存在する場合true, しない場合false。
 	 */
-	public function __isset($property) {
+	public function __isset(string $property) : bool {
 		return isset($this->_data[$property]);
 	}
 
@@ -221,19 +222,19 @@ abstract class ModelBase {
 	 * @param string $property プロパティ名。
 	 * @return void
 	 */
-	public function __unset($property) {
+	public function __unset(string $property) : void {
 		unset($this->_data[$property]);
 	}
 
 	/**
 	 * 指定されたプロパティが数値かをチェックし、数値でない場合エラー情報を登録。
-	 * 
+	 *
 	 * 空の場合も不可と判定する。
 	 * @param string $property プロパティ名。
 	 * @param string $name プロパティの表示名。
-	 * @return boolean 数値以外の場合true、数値はfalse。
+	 * @return bool 数値以外の場合true、数値はfalse。
 	 */
-	protected function addErrorIfNotNumeric($property, $name = '') {
+	protected function addErrorIfNotNumeric(string $property, string $name = '') : bool {
 		if (is_null($this->{$property}) || !is_numeric($this->{$property})) {
 			$this->errors[] = ($name == '' ? $property : $name) . 'には数値を入力してください。';
 			return true;
@@ -245,9 +246,9 @@ abstract class ModelBase {
 	 * 指定されたプロパティが空白（null, '', スペースのみ）かをチェックし、空白の場合エラー情報を登録。
 	 * @param string $property プロパティ名。
 	 * @param string $name プロパティの表示名。
-	 * @return boolean 空白の場合true、それ以外はfalse。
+	 * @return bool 空白の場合true、それ以外はfalse。
 	 */
-	protected function addErrorIfBlank($property, $name = '') {
+	protected function addErrorIfBlank(string $property, string $name = '') : bool {
 		if (is_null($this->{$property}) || trim($this->{$property}) === '') {
 			$this->errors[] = ($name == '' ? $property : $name) . 'を入力してください。';
 			return true;
@@ -257,13 +258,13 @@ abstract class ModelBase {
 
 	/**
 	 * 指定されたプロパティが日時に変換できないかをチェックし、できない場合エラー情報を登録。
-	 * 
+	 *
 	 * 空の場合も不可と判定する。
 	 * @param string $property プロパティ名。
 	 * @param string $name プロパティの表示名。
-	 * @return boolean 変換不可の場合true、可能な場合はfalse。
+	 * @return bool 変換不可の場合true、可能な場合はfalse。
 	 */
-	protected function addErrorIfNotDate($property, $name = '') {
+	protected function addErrorIfNotDate(string $property, string $name = '') : bool {
 		if ($this->addErrorIfBlank($property, $name)) {
 			return true;
 		}

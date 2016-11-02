@@ -4,17 +4,17 @@
  *
  * @package    SimpleBlog
  * @subpackage models
- * @version    0.1
+ * @version    0.2
  * @author     Koichi Tanaka
- * @copyright  Copyright © 2014 Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
  */
 
 /**
  * ブログの各記事を扱うモデルクラス。
- * 
+ *
  * DBの"CONTENTS"テーブルに相当する。
  * 記事名や投稿日時、本文といった情報を持つ。
- * 
+ *
  * @package  SimpleBlog
  */
 class Content extends ModelBase
@@ -23,12 +23,12 @@ class Content extends ModelBase
 	 * コンテンツIDからコンテンツを取得する。
 	 * @param int $id コンテンツID。
 	 * @param int $blogId ブログID、null以外の場合はブログIDの一致もチェックする（権限チェック用）。
-	 * @param boolean $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
-	 * @return mixed コンテンツ、取得失敗時はfalse。
+	 * @param bool $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
+	 * @return Content コンテンツ、取得失敗時はnull。
 	 */
-	public static function findById($id, $blogId = null, $public = true) {
+	public static function findById(int $id, ?int $blogId = null, bool $public = true) : ?Content {
 		$query = "SELECT * FROM CONTENTS WHERE ID = :id";
-		$data = ['id' => (int) $id];
+		$data = ['id' => $id];
 
 		if (!is_null($blogId)) {
 			// ブログIDの指定がある場合、一致しない場合は無しと判定する
@@ -55,10 +55,10 @@ class Content extends ModelBase
 	 * @param int $page ページ番号、未指定時は全て。デフォルトは未指定。
 	 * @param int $pageMax 1ページ当たりの表示件数。
 	 * @param string $tag タグによる絞り込みを行う場合のタグ名。
-	 * @param boolean $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
+	 * @param bool $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
 	 * @return array ブログ記事の配列、本文情報は含まない。
 	 */
-	public static function find($blogId, $page = null, $pageMax = 10, $tag = null, $public = true) {
+	public static function find(int $blogId, ?int $page = null, int $pageMax = 10, ?string $tag = null, bool $public = true) : array {
 		$query = "SELECT c.ID, c.BLOG_ID, c.TITLE, c.SUMMARY, c.DATE, c.VISIBLE FROM CONTENTS c";
 		$where = " WHERE c.BLOG_ID = :blog_id";
 		$data = ['blog_id' => (int) $blogId];
@@ -101,10 +101,10 @@ class Content extends ModelBase
 	 * コンテンツの登録件数を返す。
 	 * @param int $blogId ブログID。
 	 * @param string $tag タグによる絞り込みを行う場合のタグ名。
-	 * @param boolean $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
+	 * @param bool $public 表示対象コンテンツのみ対象とする場合はtrue。デフォルトtrue。
 	 * @return int 登録件数。
 	 */
-	public static function count($blogId, $tag = null, $public = true) {
+	public static function count(int $blogId, ?string $tag = null, bool $public = true) : int {
 		$query = "SELECT COUNT(*) AS CNT FROM CONTENTS c";
 		$where = " WHERE c.BLOG_ID = :blog_id";
 		$data = ['blog_id' => (int) $blogId];
@@ -125,10 +125,10 @@ class Content extends ModelBase
 	/**
 	 * 表示対象コンテンツのみに絞り込むためのWHERE句を追加する。
 	 * @param string $query WHERE句を追加するSQL文。参照渡しのためこのSQL文に追加される。
-	 * @param boolean $public 表示対象コンテンツのみ対象とする場合はtrue。
+	 * @param bool $public 表示対象コンテンツのみ対象とする場合はtrue。
 	 * @see Content::isPublic
 	 */
-	private static function addWhereForPublic(&$query, $public) {
+	private static function addWhereForPublic(string &$query, bool $public) : void {
 		if ($public) {
 			if (stristr($query, 'WHERE') !== FALSE) {
 				$query .= " AND";
@@ -145,9 +145,9 @@ class Content extends ModelBase
 	 * 保存前にはバリデートを行う。
 	 * コンテンツIDが設定されている場合はINSERTを、
 	 * 設定されていない場合はUPDATEを実行する。
-	 * @return boolean 保存が成功した場合true、失敗した場合false。
+	 * @return bool 保存が成功した場合true、失敗した場合false。
 	 */
-	public function save() {
+	public function save() : bool {
 		if (!$this->validate()) {
 			return false;
 		}
@@ -178,9 +178,9 @@ class Content extends ModelBase
 
 	/**
 	 * 有効なコンテンツかのチェックを行う。
-	 * @return boolean 問題ない場合はtrue、不可の場合はfalse。
+	 * @return bool 問題ない場合はtrue、不可の場合はfalse。
 	 */
-	protected function validate() {
+	protected function validate() : bool {
 		$this->errors = [];
 		$this->addErrorIfNotNumeric('blog_id', 'ブログID');
 		$this->addErrorIfBlank('title', 'タイトル');
@@ -200,9 +200,9 @@ class Content extends ModelBase
 
 	/**
 	 * コンテンツをDBに登録する。
-	 * @return boolean 保存が成功した場合true、失敗した場合false。
+	 * @return bool 保存が成功した場合true、失敗した場合false。
 	 */
-	protected function insert() {
+	protected function insert() : bool {
 		return parent::executeAndGetId(
 				"INSERT INTO CONTENTS (BLOG_ID, TITLE, SUMMARY, DATE, VISIBLE, TEXT)"
 				. " VALUES (:blog_id, :title, :summary, CAST(:date AS DATETIME), :visible, :text)",
@@ -218,9 +218,9 @@ class Content extends ModelBase
 
 	/**
 	 * コンテンツをDBに上書きする。
-	 * @return boolean 保存が成功した場合true、失敗した場合false。
+	 * @return bool 保存が成功した場合true、失敗した場合false。
 	 */
-	protected function update() {
+	protected function update() : bool {
 		return parent::execute(
 				"UPDATE CONTENTS SET"
 				. " BLOG_ID = :blog_id,"
@@ -243,12 +243,12 @@ class Content extends ModelBase
 
 	/**
 	 * タグ情報をDBに登録する。
-	 * 
+	 *
 	 * $this->tag の文字列から登録する。
 	 * 登録時には$this->tagsにタグ情報を配列の形でコピーする。
-	 * @return boolean 更新が成功した場合true、失敗した場合false。
+	 * @return bool 更新が成功した場合true、失敗した場合false。
 	 */
-	protected function saveTags() {
+	protected function saveTags() : bool {
 		// 一度全て消してから再度登録
 		Tag::deleteByContentId($this->id);
 		$this->tags = [];
@@ -272,9 +272,9 @@ class Content extends ModelBase
 
 	/**
 	 * コンテンツをDBから削除する。
-	 * @return boolean 削除が成功した場合true、失敗した場合false。
+	 * @return bool 削除が成功した場合true、失敗した場合false。
 	 */
-	public function remove() {
+	public function remove() : bool {
 		return parent::execute(
 				"DELETE FROM CONTENTS WHERE ID = :id",
 				['id' => (int) $this->id]);
@@ -284,16 +284,16 @@ class Content extends ModelBase
 	 * コンテンツの投稿日時に現在時刻を設定する。
 	 * @return void
 	 */
-	public function setNow() {
+	public function setNow() : void {
 		$this->date = date('Y-m-d H:i:s');
 	}
 
 	/**
 	 * コンテンツは表示対象か？
-	 * @return boolean 表示対象の場合true、それ以外はfalse。
+	 * @return bool 表示対象の場合true、それ以外はfalse。
 	 * @see Content::addWhereForPublic
 	 */
-	public function isPublic() {
+	public function isPublic() : bool {
 		// addWhereForPublicと同じ条件のPHP版。必要な個所があったので
 		try {
 			$date = new DateTime($this->date);
@@ -310,7 +310,7 @@ class Content extends ModelBase
 	 * 読み込んだタグは $this->tag, $this->tags に格納される。
 	 * @return void
 	 */
-	protected function loadTags() {
+	protected function loadTags() : void {
 		$this->tag = '';
 		$this->tags = [];
 		if (empty($this->id)) {
