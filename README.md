@@ -25,9 +25,9 @@ PHPを用いた簡易ブログです。2014年に某所でPHP5でフレームワ
 ## 動作環境
 動作環境はPHP 7.1とApache 2.4, MariaDB 5.5で、画面表示はEdgeやChromeで確認。
 
-DBを作成した後、`app/simple_blog.sql` でテーブル等を作成して実行してください。
+DBを作成した後、`app/simple_blog.sql` でテーブル等を作成して、`composer install` でライブラリのインストールを行ってください。
 
-添付の`Vagrantfile`で、DB含めて動作する状態の開発環境が作成されます。
+添付の`Vagrantfile`で、DBやライブラリ含めて動作する状態の開発環境が作成されます。
 
 ## ソース解説
 * `app/` - アプリのルート
@@ -37,7 +37,6 @@ DBを作成した後、`app/simple_blog.sql` でテーブル等を作成して�
 * `doc/` - ドキュメント（ツールで生成したER図含む）
 * `public/` - 公開用ディレクトリ（コントローラーの機能を持たせたPHPファイル含む）
 * `public/admin/` - 管理用画面のディレクトリ
-* `vendor/` - Twitter API用外部ライブラリ
 
 モデル周りをクラスとして設計しています。コントローラ周りについては、クラスにするとどこかで見たフレームワークのようになってしまいそうだったのと、規模と内容的に素のPHPでも大差なかったため、素のPHPで書いています。  
 （直接SQLや$_POST等を取り扱っているため、若干見づらい。）
@@ -52,10 +51,6 @@ DBを作成した後、`app/simple_blog.sql` でテーブル等を作成して�
 （初回など登録されていない場合はセットアップ画面を表示。）
 
 一人用を想定して作成してはいますが、DB設計や管理画面などは一応どちらにも使えそうな形で作っています。
-
-## 外部ライブラリ
-Twitter連携については、TwitterOAuth を使用しています。  
-`vender` 以下のソースについては `doc/LICENSE_TwitterOAuth.txt` 記載のライセンスに従ってください。
 
 ## ライセンス
 [MIT](https://github.com/ktanakaj/simple_blog/blob/master/LICENSE)

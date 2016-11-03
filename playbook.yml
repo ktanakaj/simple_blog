@@ -2,15 +2,18 @@
 - hosts: default
   vars:
     timezone: "Asia/Tokyo"
-    vagrant_dir: /vagrant
     remi_repository: http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
     remi_repository_name: remi-php71
-    app_apache_conf_src: "{{ vagrant_dir }}/apache-app.conf"
+    composer_phar_url: https://getcomposer.org/download/1.2.1/composer.phar
+    phpdoc_phar_url: http://www.phpdoc.org/phpDocumentor.phar
+    phpunit_phar_url: https://phar.phpunit.de/phpunit.phar
+    app_apache_conf_src: "/vagrant/apache-app.conf"
     app_apache_conf_dest: /etc/httpd/conf.d/simple_blog.conf
+    app_dir: "/vagrant"
     app_db_name: simple_blog
     app_db_user: simple_blog
     app_db_password: simple_blog01
-    app_db_sql: "{{ vagrant_dir }}/app/simple_blog.sql"
+    app_db_sql: "/vagrant/app/simple_blog.sql"
   tasks:
     - block:
       - block:
@@ -48,6 +51,8 @@
           yum: name=php-mysqlnd state=latest
         - name: Install the latest version of php-mbstring
           yum: name=php-mbstring state=latest
+        - name: Install the latest version of php-xml
+          yum: name=php-xml state=latest
         - name: Install the latest version of Apache
           yum: name=httpd state=latest
         - name: Install the latest version of MariaDB
@@ -56,6 +61,24 @@
           yum: name=mariadb-server state=latest
         - name: Install the latest version of MySQL-python
           yum: name=MySQL-python state=latest
+        - name: Install the latest version of unzip
+          yum: name=unzip state=latest
+      - block:
+        - name: Install Composer
+          get_url:
+            url: "{{ composer_phar_url }}"
+            dest: /usr/local/bin/composer
+            mode: 0555
+        - name: Install the latest version of phpDocumentor
+          get_url:
+            url: "{{ phpdoc_phar_url }}"
+            dest: /usr/local/bin/phpdoc
+            mode: 0555
+        - name: Install the latest version of PHPUnit
+          get_url:
+            url: "{{ phpunit_phar_url }}"
+            dest: /usr/local/bin/phpunit
+            mode: 0555
       - block:
         - name: Action to enable service mariadb
           service: name=mariadb state=started enabled=yes
@@ -88,3 +111,10 @@
           shell: mysql --user={{ app_db_user }} --password={{ app_db_password }} {{ app_db_name }} -e 'source {{ app_db_sql }}' -B
           when: app_db_created.changed == true
       become: true
+
+    - block:
+      - block:
+        - name: Install composer packages for the server application
+          composer:
+            command: install
+            working_dir: "{{ app_dir }}"

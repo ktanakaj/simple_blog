@@ -8,7 +8,8 @@
  * @author     Koichi Tanaka
  * @copyright  Copyright © 2016 Koichi Tanaka
  */
-require_once(dirname(__FILE__) . '/../../vendor/twitteroauth.php');
+require(dirname(__FILE__) . '/../../vendor/autoload.php');
+use Abraham\TwitterOAuth\TwitterOAuth;
 
 /**
  * Twitter全体に関する処理を扱うクラス。
@@ -79,10 +80,15 @@ class Twitter extends OAuth
 		if (!empty($url)) {
 			$add = ' ' . $url;
 		}
-		$this->connection()->post('statuses/update', [
-			'status' => $this->trimByLength($tweet, self::MAX_TWEET - mb_strlen($add, APP_CHARSET)) . $add
-		]);
-		return $this->connection()->http_code == 200;
+		try {
+			$this->connection()->post('statuses/update', [
+				'status' => $this->trimByLength($tweet, self::MAX_TWEET - mb_strlen($add, APP_CHARSET)) . $add
+			]);
+			return true;
+		} catch (Exception $e) {
+			error_log($e);
+			return false;
+		}
 	}
 
 	/**
@@ -106,11 +112,12 @@ class Twitter extends OAuth
 	 * @return array タイムライン。取得失敗時はnull。
 	 */
 	public function timeline(int $count = 10) : ?array {
-		$timeline = $this->connection()->get('statuses/user_timeline', ['count' => $count]);
-		if ($this->connection()->http_code != 200) {
+		try {
+			return $this->connection()->get('statuses/user_timeline', ['count' => $count]);
+		} catch (Exception $e) {
+			error_log($e);
 			return null;
 		}
-		return $timeline;
 	}
 
 	/**
@@ -135,22 +142,24 @@ class Twitter extends OAuth
 	 * @return array 転送先URL'url', リクエストトークン'request_token', シークレット'request_secret'を含んだ配列。接続失敗時はnullを返す。
 	 */
 	public static function startAuthorize(string $url) : ?array {
-		// リクエストトークン取得用のコネクションを作成
-		$connection = new TwitterOAuth(TWITTER_API_KEY, TWITTER_API_SECRET);
+		try {
+			// リクエストトークン取得用のコネクションを作成
+			$connection = new TwitterOAuth(TWITTER_API_KEY, TWITTER_API_SECRET);
 
-		// Twitterからリクエストトークンを取得
-		$requestToken = $connection->getRequestToken($url);
-		if ($connection->http_code != 200) {
+			// Twitterからリクエストトークンを取得
+			$requestToken = $connection->oauth('oauth/request_token', ['oauth_callback' => $url]);
+			$data = [
+				'request_token' => $requestToken['oauth_token'],
+				'request_secret' => $requestToken['oauth_token_secret'],
+			];
+
+			// 受け取ったリクエストトークンを付けた認証用URLを作成
+			$data['url'] = $connection->url('oauth/authorize', array('oauth_token' => $data['request_token']));
+			return $data;
+		} catch (Exception $e) {
+			error_log($e);
 			return null;
 		}
-		$data = [
-			'request_token' => $requestToken['oauth_token'],
-			'request_secret' => $requestToken['oauth_token_secret'],
-		];
-
-		// 受け取ったリクエストトークンを付けた認証用URLを作成
-		$data['url'] = $connection->getAuthorizeURL($data['request_token']);
-		return $data;
 	}
 
 	/**
@@ -164,24 +173,26 @@ class Twitter extends OAuth
 	 * @return Twitter Twitter認証情報。接続失敗時などはnullを返す。
 	 */
 	public static function commitAuthorize(string $requestToken, string $requestSecret, string $oauthVerifier, string $blogId) : ?Twitter {
-		// アクセストークン取得用のコネクションを作成
-		$connection = new TwitterOAuth(TWITTER_API_KEY, TWITTER_API_SECRET, $requestToken, $requestSecret);
+		try {
+			// アクセストークン取得用のコネクションを作成
+			$connection = new TwitterOAuth(TWITTER_API_KEY, TWITTER_API_SECRET, $requestToken, $requestSecret);
 
-		// Twitterからアクセストークンを取得
-		$accessToken = $connection->getAccessToken($oauthVerifier);
-		if ($connection->http_code != 200) {
+			// Twitterからアクセストークンを取得
+			$accessToken = $connection->oauth("oauth/access_token", ["oauth_verifier" => $oauthVerifier]);
+
+			// アクセストークンをDBに格納
+			$oauth = new static();
+			$oauth->blog_id = $blogId;
+			$oauth->access_token = $accessToken['oauth_token'];
+			$oauth->access_secret = $accessToken['oauth_token_secret'];
+			if (!$oauth->save()) {
+				// ※ 通常失敗することはない
+				return null;
+			}
+			return $oauth;
+		} catch (Exception $e) {
+			error_log($e);
 			return null;
 		}
-
-		// アクセストークンをDBに格納
-		$oauth = new static();
-		$oauth->blog_id = $blogId;
-		$oauth->access_token = $accessToken['oauth_token'];
-		$oauth->access_secret = $accessToken['oauth_token_secret'];
-		if (!$oauth->save()) {
-			// ※ 通常失敗することはない
-			return null;
-		}
-		return $oauth;
 	}
 }
