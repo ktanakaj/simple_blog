@@ -2,15 +2,15 @@
 - hosts: default
   vars:
     timezone: "Asia/Tokyo"
-    home_dir: /home/vagrant
+    vagrant_dir: /vagrant
     remi_repository: http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
     remi_repository_name: remi-php71
-    app_apache_conf_src: "{{ home_dir }}/sync/apache-app.conf"
+    app_apache_conf_src: "{{ vagrant_dir }}/apache-app.conf"
     app_apache_conf_dest: /etc/httpd/conf.d/simple_blog.conf
     app_db_name: simple_blog
     app_db_user: simple_blog
     app_db_password: simple_blog01
-    app_db_sql: "{{ home_dir }}/sync/app/simple_blog.sql"
+    app_db_sql: "{{ vagrant_dir }}/app/simple_blog.sql"
   tasks:
     - block:
       - block:
@@ -59,7 +59,7 @@
       - block:
         - name: Action to enable service mariadb
           service: name=mariadb state=started enabled=yes
-        - name: Copy the web app configuration to nginx
+        - name: Copy the web app configuration to Apache
           copy: src={{ app_apache_conf_src }} dest={{ app_apache_conf_dest }} force=no
         - name: Action to enable service Apache
           service: name=httpd state=restarted enabled=yes
@@ -76,8 +76,6 @@
           firewalld: source='172.16.0.0/12' zone=internal state=enabled
         - name: Action to reload service firewalld
           service: name=firewalld state=reloaded enabled=yes
-        - name: Chmod vagrant's home directory for Apache
-          file: path={{ home_dir }} mode=0755
       - block:
         - name: Create the web application database
           mysql_db: name={{ app_db_name }} encoding=utf8 state=present
