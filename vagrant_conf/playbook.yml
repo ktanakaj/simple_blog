@@ -7,7 +7,7 @@
     composer_phar_url: https://getcomposer.org/download/1.2.1/composer.phar
     phpdoc_phar_url: http://www.phpdoc.org/phpDocumentor.phar
     phpunit_phar_url: https://phar.phpunit.de/phpunit.phar
-    app_apache_conf_src: "/vagrant/apache-app.conf"
+    app_apache_conf_src: "/vagrant/vagrant_conf/apache_app.conf"
     app_apache_conf_dest: /etc/httpd/conf.d/simple_blog.conf
     app_dir: "/vagrant"
     app_db_name: simple_blog
@@ -20,7 +20,7 @@
         - name: Check timezone
           shell: timedatectl | grep -e {{ timezone }}
           register: timedatectl_timezone
-          always_run: yes
+          check_mode: no
           changed_when: false
           failed_when: false
         - name: Set timezone
@@ -34,7 +34,7 @@
         - name: Check PHP version
           shell: yum info php | grep -e "Version\s*:\s*7\."
           register: php_version
-          always_run: yes
+          check_mode: no
           changed_when: false
           failed_when: false
         - name: Enable Remi repository
