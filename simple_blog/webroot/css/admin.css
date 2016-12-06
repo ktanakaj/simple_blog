@@ -1,0 +1,90 @@
+@CHARSET "UTF-8";
+
+table {
+	border-collapse: collapse;
+}
+
+td, th {
+	border: solid 1px #000000;
+	padding: 0.2em;
+}
+
+footer ul {
+	list-style :none;
+	padding: 0px;
+	margin: 0px;
+}
+
+footer ul li {
+	float: left;
+	margin-right: 1em;
+}
+
+.container p.message {
+	font-weight: bold;
+	color: #660000;
+}
+
+ul.errors {
+	font-weight: bold;
+	color: #FF0000;
+}
+
+div.param {
+	margin: 0.4em 0px;
+}
+
+div.param textarea {
+	vertical-align: top;
+}
+
+nav.paging {
+	margin-top: 1em;
+	font-size: 90%;
+}
+
+nav.paging p.page_no {
+	margin-bottom: 0px;
+}
+
+nav.paging p.navi {
+	margin-top: 0.5em;
+}
+
+table#config {
+	margin-bottom: 1em;
+}
+
+#config #title {
+	width: 30em;
+}
+
+#mail_address {
+	width: 30em;
+}
+
+#password, #password2 {
+	width: 10em;
+}
+
+#content #title {
+	width: 40em;
+}
+
+textarea#text {
+	width: 50em;
+	height: 12em;
+}
+
+textarea#summary {
+	width: 30em;
+	height: 4em;
+}
+
+#date {
+	width: 12em;
+}
+
+#tag {
+	width: 16em;
+}
