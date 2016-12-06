@@ -9,11 +9,11 @@
     phpunit_phar_url: https://phar.phpunit.de/phpunit.phar
     app_apache_conf_src: "/vagrant/vagrant_conf/apache_app.conf"
     app_apache_conf_dest: /etc/httpd/conf.d/simple_blog.conf
-    app_dir: "/vagrant"
+    app_dir: "/vagrant/simple_blog"
     app_db_name: simple_blog
     app_db_user: simple_blog
     app_db_password: simple_blog01
-    app_db_sql: "/vagrant/app/simple_blog.sql"
+    app_db_sql: "/vagrant/db/simple_blog.sql"
   tasks:
     - block:
       - block:
@@ -53,6 +53,8 @@
           yum: name=php-mbstring state=latest
         - name: Install the latest version of php-xml
           yum: name=php-xml state=latest
+        - name: Install the latest version of php-intl
+          yum: name=php-intl state=latest
         - name: Install the latest version of Apache
           yum: name=httpd state=latest
         - name: Install the latest version of MariaDB

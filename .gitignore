@@ -5,5 +5,7 @@
 *.log
 *.bak
 playbook.retry
-vendor
+/*/vendor/*
+/*/tmp/*
+/*/logs/*
 !.gitkeep
