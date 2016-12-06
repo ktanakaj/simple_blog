@@ -119,4 +119,5 @@
         - name: Install composer packages for the server application
           composer:
             command: install
+            no_dev: no
             working_dir: "{{ app_dir }}"

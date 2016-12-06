@@ -2,17 +2,17 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 /* Drop Indexes */
 
-DROP INDEX TAGS_IDX1 ON TAGS;
-DROP INDEX CONTENTS_IDX1 ON CONTENTS;
+DROP INDEX tags_idx1 ON tags;
+DROP INDEX contents_idx1 ON contents;
 
 
 
 /* Drop Tables */
 
-DROP TABLE OAUTH;
-DROP TABLE TAGS;
-DROP TABLE CONTENTS;
-DROP TABLE BLOGS;
+DROP TABLE oauth;
+DROP TABLE tags;
+DROP TABLE contents;
+DROP TABLE blogs;
 
 
 
@@ -20,91 +20,91 @@ DROP TABLE BLOGS;
 /* Create Tables */
 
 -- ブログ全体の情報を扱うテーブル
-CREATE TABLE BLOGS
+CREATE TABLE blogs
 (
 	-- 各ブログを一意に識別するID
-	ID INT NOT NULL AUTO_INCREMENT COMMENT 'ブログID',
+	id INT NOT NULL AUTO_INCREMENT COMMENT 'ブログID',
 	-- ブログの名称／タイトル
-	TITLE VARCHAR(255) NOT NULL UNIQUE COMMENT 'ブログタイトル',
+	title VARCHAR(255) NOT NULL UNIQUE COMMENT 'ブログタイトル',
 	-- ブログ所有者の認証に用いるメールアドレス。便宜上メールアドレスとしているが、一意な値であれば何でも構わない（例: 'admin'）
-	MAIL_ADDRESS VARCHAR(255) NOT NULL UNIQUE COMMENT 'メールアドレス',
+	mail_address VARCHAR(255) NOT NULL UNIQUE COMMENT 'メールアドレス',
 	-- ブログ所有者の認証に用いるパスワード。ハッシュ等を格納する。
-	PASSWORD VARCHAR(255) NOT NULL COMMENT 'パスワード',
+	password VARCHAR(255) NOT NULL COMMENT 'パスワード',
 	-- ブログ所有者が最後に認証した日時
-	LAST_LOGIN DATETIME COMMENT '最終ログイン日時',
-	PRIMARY KEY (ID)
+	last_login DATETIME COMMENT '最終ログイン日時',
+	PRIMARY KEY (id)
 ) COMMENT = 'ブログ';
 
 
 -- ブログの各記事に付けるタグ情報を扱うテーブル
-CREATE TABLE TAGS
+CREATE TABLE tags
 (
 	-- ブログの各記事を一意に識別するID
-	CONTENT_ID INT NOT NULL COMMENT 'コンテンツID',
+	content_id INT NOT NULL COMMENT 'コンテンツID',
 	-- ブログの各記事に付けるタグの名称。
-	NAME VARCHAR(100) NOT NULL COMMENT 'タグ名',
-	PRIMARY KEY (CONTENT_ID, NAME)
+	name VARCHAR(100) NOT NULL COMMENT 'タグ名',
+	PRIMARY KEY (content_id, name)
 ) COMMENT = 'タグ';
 
 
 -- ブログの各記事の情報を扱うテーブル
-CREATE TABLE CONTENTS
+CREATE TABLE contents
 (
 	-- ブログの各記事を一意に識別するID
-	ID INT NOT NULL AUTO_INCREMENT COMMENT 'コンテンツID',
+	id INT NOT NULL AUTO_INCREMENT COMMENT 'コンテンツID',
 	-- 各ブログを一意に識別するID
-	BLOG_ID INT NOT NULL COMMENT 'ブログID',
+	blog_id INT NOT NULL COMMENT 'ブログID',
 	-- ブログの各記事のタイトル
-	TITLE VARCHAR(255) NOT NULL COMMENT 'コンテンツタイトル',
+	title VARCHAR(255) NOT NULL COMMENT 'コンテンツタイトル',
 	-- 各記事の一覧表示用の概要
-	SUMMARY VARCHAR(1000) NOT NULL COMMENT '概要',
+	summary VARCHAR(1000) NOT NULL COMMENT '概要',
 	-- 各記事の投稿日時
-	DATE DATETIME NOT NULL COMMENT '投稿日時',
+	date DATETIME NOT NULL COMMENT '投稿日時',
 	-- 記事を公開する場合TRUE
-	VISIBLE BOOLEAN NOT NULL COMMENT '表示フラグ',
+	visible BOOLEAN NOT NULL COMMENT '表示フラグ',
 	-- 各記事の本文
-	TEXT TEXT NOT NULL COMMENT '本文',
-	PRIMARY KEY (ID)
+	text TEXT NOT NULL COMMENT '本文',
+	PRIMARY KEY (id)
 ) COMMENT = 'ブログコンテンツ';
 
 
 -- OAUTH認証情報を扱うテーブル
-CREATE TABLE OAUTH
+CREATE TABLE oauth
 (
 	-- 各ブログを一意に識別するID
-	BLOG_ID INT NOT NULL COMMENT 'ブログID',
+	blog_id INT NOT NULL COMMENT 'ブログID',
 	-- OAUTH認証の接続先を表す種別
-	TYPE ENUM('TWITTER') NOT NULL COMMENT '接続先種別',
+	type ENUM('TWITTER') NOT NULL COMMENT '接続先種別',
 	-- OAUTH認証に用いるアクセストークン
-	ACCESS_TOKEN VARCHAR(100) NOT NULL COMMENT 'アクセストークン',
+	access_token VARCHAR(100) NOT NULL COMMENT 'アクセストークン',
 	-- OAUTH認証に用いるアクセスシークレット
-	ACCESS_SECRET VARCHAR(100) NOT NULL COMMENT 'アクセスシークレット',
-	PRIMARY KEY (BLOG_ID, TYPE)
+	access_secret VARCHAR(100) NOT NULL COMMENT 'アクセスシークレット',
+	PRIMARY KEY (blog_id, type)
 ) COMMENT = 'OAUTH認証情報';
 
 
 
 /* Create Foreign Keys */
 
-ALTER TABLE OAUTH
-	ADD FOREIGN KEY (BLOG_ID)
-	REFERENCES BLOGS (ID)
+ALTER TABLE oauth
+	ADD FOREIGN KEY (blog_id)
+	REFERENCES BLOGS (id)
 	ON UPDATE CASCADE
 	ON DELETE CASCADE
 ;
 
 
-ALTER TABLE CONTENTS
-	ADD FOREIGN KEY (BLOG_ID)
-	REFERENCES BLOGS (ID)
+ALTER TABLE contents
+	ADD FOREIGN KEY (blog_id)
+	REFERENCES BLOGS (id)
 	ON UPDATE CASCADE
 	ON DELETE CASCADE
 ;
 
 
-ALTER TABLE TAGS
-	ADD FOREIGN KEY (CONTENT_ID)
-	REFERENCES CONTENTS (ID)
+ALTER TABLE tags
+	ADD FOREIGN KEY (content_id)
+	REFERENCES CONTENTS (id)
 	ON UPDATE CASCADE
 	ON DELETE CASCADE
 ;
@@ -114,9 +114,9 @@ ALTER TABLE TAGS
 /* Create Indexes */
 
 -- タグでの検索用インデックス
-CREATE INDEX TAGS_IDX1 ON TAGS (NAME ASC);
+CREATE INDEX tags_idx1 ON tags (name ASC);
 -- 投稿日時ソート用のインデックス
-CREATE INDEX CONTENTS_IDX1 ON CONTENTS (BLOG_ID ASC, DATE DESC);
+CREATE INDEX contents_idx1 ON contents (blog_id ASC, date DESC);
 
 
 
