@@ -34,7 +34,7 @@ class TagsTable extends Table
 
         $this->table('tags');
         $this->displayField('name');
-        $this->primaryKey(['content_id', 'name']);
+        $this->primaryKey('id');
 
         $this->belongsTo('Contents', [
             'foreignKey' => 'content_id',
@@ -51,7 +51,12 @@ class TagsTable extends Table
     public function validationDefault(Validator $validator)
     {
         $validator
-            ->allowEmpty('name', 'create');
+            ->integer('id')
+            ->allowEmpty('id', 'create');
+
+        $validator
+            ->requirePresence('name', 'create')
+            ->notEmpty('name');
 
         return $validator;
     }

@@ -5,6 +5,7 @@
 *.log
 *.bak
 playbook.retry
+/*/config/Migrations/*.lock
 /*/vendor/*
 /*/tmp/*
 /*/logs/*

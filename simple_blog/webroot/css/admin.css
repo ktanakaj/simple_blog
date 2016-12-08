@@ -1,90 +1,81 @@
-@CHARSET "UTF-8";
-
-table {
-	border-collapse: collapse;
+html {
+    position: relative;
+    min-height: 100%;
 }
 
-td, th {
-	border: solid 1px #000000;
-	padding: 0.2em;
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 30px;
 }
 
-footer ul {
-	list-style :none;
-	padding: 0px;
-	margin: 0px;
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 30px;
+    background-color: #f5f5f5;
+    text-align: center;
+    line-height: 30px;
 }
 
-footer ul li {
-	float: left;
-	margin-right: 1em;
+@media only screen and (max-width: 379px) {
+    .footer {
+        font-size: x-small;
+    }
 }
 
-.container p.message {
-	font-weight: bold;
-	color: #660000;
+@media only screen and (max-width: 379px) {
+    .navbar-brand {
+        font-size: medium;
+    }
 }
 
-ul.errors {
-	font-weight: bold;
-	color: #FF0000;
+fieldset {
+    margin-bottom: 0.85em;
 }
 
-div.param {
-	margin: 0.4em 0px;
+form .ng-invalid {
+    background-color: #FFDAB9;
 }
 
-div.param textarea {
-	vertical-align: top;
+form .ng-valid {
+    background-color: #E5FFCC;
 }
 
-nav.paging {
-	margin-top: 1em;
-	font-size: 90%;
+@media only screen and (min-width: 31em) {
+    input[type="text"],
+    input[type="password"] {
+        width: 30em;
+    }
+    textarea.form-control {
+        width: initial;
+        min-width: 30em;
+    }
 }
 
-nav.paging p.page_no {
-	margin-bottom: 0px;
+@media only screen and (max-width: 30em) {
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+    }
+    textarea.form-control {
+        width: 100%;
+    }
 }
 
-nav.paging p.navi {
-	margin-top: 0.5em;
+.content-header {
+    margin-bottom: 0.85em;
 }
 
-table#config {
-	margin-bottom: 1em;
+.content-footer {
+    margin-top: 0.85em;
 }
 
-#config #title {
-	width: 30em;
+.warning {
+    color: #d08d2e;
 }
 
-#mail_address {
-	width: 30em;
-}
-
-#password, #password2 {
-	width: 10em;
-}
-
-#content #title {
-	width: 40em;
-}
-
-textarea#text {
-	width: 50em;
-	height: 12em;
-}
-
-textarea#summary {
-	width: 30em;
-	height: 4em;
-}
-
-#date {
-	width: 12em;
-}
-
-#tag {
-	width: 16em;
+.error {
+    color: #d9534f;
 }

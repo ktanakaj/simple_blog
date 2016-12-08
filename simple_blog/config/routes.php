@@ -50,6 +50,7 @@ Router::scope('/', function (RouteBuilder $routes) {
      * to use (in this case, src/Template/Pages/home.ctp)...
      */
     $routes->connect('/', ['controller' => 'Blogs', 'action' => 'index']);
+    $routes->connect('/contents/*', ['controller' => 'Blogs', 'action' => 'contents']);
     Router::prefix('admin', function ($routes) {
         // この全てのルートは `/admin` によってプレフィックスされます。
         // そのために、 prefix => admin をルート要素として追加します。

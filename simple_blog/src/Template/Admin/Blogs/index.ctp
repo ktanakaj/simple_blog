@@ -14,7 +14,7 @@
  * @param string $message 通知メッセージ。
  */
 ?>
-<table id="config">
+<table id="config" class="table table-bordered">
   <tbody>
     <tr><th>ブログ名</th><td><?= h($blog->title) ?></td></tr>
     <tr><th>メールアドレス</th><td><?= h($blog->mail_address) ?></td></tr>
@@ -22,13 +22,11 @@
   </tbody>
 </table>
 
-<?php if (empty($last)): ?>
-  <p>このブログはまだ執筆されていません。</p>
-<?php elseif (empty($contents)): ?>
+<?php if (empty($contents)): ?>
   <p>指定されたページは存在しません。</p>
 <?php else: ?>
 
-<table id="contents">
+<table id="contents" class="table table-bordered">
   <thead>
     <tr><th>投稿日時</th><th>タイトル</th><th>状態</th><th></th></tr>
   </thead>
@@ -36,9 +34,9 @@
     <?php foreach ($contents as $content): ?>
       <tr>
         <td><?= $content->date ?></td>
-        <td><a href="contents/edit/<?= $content->id ?>"><?= h($content->title) ?></a></td>
+        <td><?= $this->Html->link($content->title, ['controller' => 'Contents', 'action' => 'edit', $content->id]) ?></td>
         <td><?= $content->visible ? '表示' : '非表示' ?></td>
-        <td><form action="contents/delete/<?= $content->id ?>" method="post"><input type="submit" value="削除" onclick="return window.confirm('本当に削除しますか？')"></form></td>
+        <td><?= $this->Form->postLink('削除', ['controller' => 'Contents', 'action' => 'delete', $content->id], ['confirm' => '本当に削除しますか？']) ?></td>
       </tr>
     <?php endforeach; ?>
   </tbody>
@@ -49,6 +47,6 @@
 <?php endif; ?>
 
 <ul>
-  <li><a href="contents/add">新しい記事の作成</a></li>
-  <li><a href="edit/<?= $blog->id ?>">ブログ全体の設定</a></li>
+  <li><?= $this->Html->link('新しい記事の作成', ['controller' => 'Contents', 'action' => 'add']) ?></li>
+  <li><?= $this->Html->link('ブログ全体の設定', ['controller' => 'Blogs', 'action' => 'edit', $blog->id]) ?></li>
 </ul>

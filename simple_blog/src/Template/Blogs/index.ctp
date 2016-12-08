@@ -13,16 +13,14 @@
  * @param int $last 最終ページ数。
  */
 ?>
-<?php if (empty($last)): ?>
-  <p>このブログはまだ執筆されていません。</p>
-<?php elseif (empty($contents)): ?>
+<?php if (empty($contents)): ?>
   <p>指定されたページは存在しません。</p>
 <?php else: ?>
 
 <?php foreach ($contents as $content): ?>
   <article class="content">
-    <h2><a href="contents/<?= $content->id ?>"><?= h($content->title) ?></a></h2>
-    <?= $this->fetch('contentHeader') ?>
+    <h2><?= $this->Html->link($content->title, ['action' => 'contents', $content->id]) ?></h2>
+    <?= $this->element('contentHeader', ["content" => $content]) ?>
     <div class="summary"><?= nl2br(h($content->summary), false) ?></div>
   </article>
 <?php endforeach; ?>

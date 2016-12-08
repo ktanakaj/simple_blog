@@ -18,17 +18,10 @@ class BlogsController extends AppController
      */
     public function index()
     {
-        // ブログはDBだが現状MAX1件の想定なので1件取得する
-        $query = $this->Blogs->find('all', [
-            'order' => ['Blogs.id' => 'DESC']
-        ]);
-        $blog = $query->first();
-        $this->set('blog', $blog);
-        $this->set('_serialize', ['blog']);
-
-        if (!$blog) {
-            return;
-        }
+        // TODO: コンテンツをページングで取得
+        $contents = $this->blog->contents;
+        $this->set(compact('contents'));
+        $this->set('_serialize', ['$contents']);
     }
 
     /**

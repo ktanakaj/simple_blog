@@ -6,6 +6,7 @@ use Cake\ORM\Entity;
 /**
  * Tag Entity
  *
+ * @property int $id
  * @property int $content_id
  * @property string $name
  *
@@ -25,7 +26,6 @@ class Tag extends Entity
      */
     protected $_accessible = [
         '*' => true,
-        'content_id' => false,
-        'name' => false
+        'id' => false
     ];
 }

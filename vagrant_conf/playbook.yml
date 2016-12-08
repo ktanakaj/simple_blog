@@ -13,7 +13,6 @@
     app_db_name: simple_blog
     app_db_user: simple_blog
     app_db_password: simple_blog01
-    app_db_sql: "/vagrant/db/simple_blog.sql"
   tasks:
     - block:
       - block:
@@ -109,9 +108,6 @@
           mysql_user: name={{ app_db_user }} password={{ app_db_password }} host=localhost priv={{ app_db_name }}.*:ALL state=present
         - name: Craete the web application db user for remote access
           mysql_user: name={{ app_db_user }} password={{ app_db_password }} host=% priv={{ app_db_name }}.*:ALL state=present
-        - name: Craete the web application db schema
-          shell: mysql --user={{ app_db_user }} --password={{ app_db_password }} {{ app_db_name }} -e 'source {{ app_db_sql }}' -B
-          when: app_db_created.changed == true
       become: true
 
     - block:
@@ -121,3 +117,7 @@
             command: install
             no_dev: no
             working_dir: "{{ app_dir }}"
+        - name: Craete the web application db schema
+          shell: bin/cake migrations migrate
+          args:
+            chdir: "{{ app_dir }}"

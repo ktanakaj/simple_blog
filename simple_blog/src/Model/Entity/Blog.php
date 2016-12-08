@@ -2,6 +2,7 @@
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 
 /**
  * Blog Entity
@@ -17,6 +18,7 @@ use Cake\ORM\Entity;
  */
 class Blog extends Entity
 {
+    use LazyLoadEntityTrait;
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
