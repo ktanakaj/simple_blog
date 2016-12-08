@@ -18,94 +18,22 @@ class BlogsController extends AppController
      */
     public function index()
     {
-        $blogs = $this->paginate($this->Blogs);
-
-        $this->set(compact('blogs'));
-        $this->set('_serialize', ['blogs']);
-    }
-
-    /**
-     * View method
-     *
-     * @param string|null $id Blog id.
-     * @return \Cake\Network\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $blog = $this->Blogs->get($id, [
-            'contain' => ['Contents', 'Oauth']
+        // ブログはDBだが現状MAX1件の想定なので1件取得する
+        $query = $this->Blogs->find('all', [
+            'order' => ['Blogs.id' => 'DESC']
         ]);
-
+        $blog = $query->first();
         $this->set('blog', $blog);
         $this->set('_serialize', ['blog']);
-    }
 
-    /**
-     * Add method
-     *
-     * @return \Cake\Network\Response|void Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $blog = $this->Blogs->newEntity();
-        if ($this->request->is('post')) {
-            $blog = $this->Blogs->patchEntity($blog, $this->request->data);
-            if ($this->Blogs->save($blog)) {
-                $this->Flash->success(__('The blog has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The blog could not be saved. Please, try again.'));
-            }
-        }
-        $this->set(compact('blog'));
-        $this->set('_serialize', ['blog']);
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Blog id.
-     * @return \Cake\Network\Response|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $blog = $this->Blogs->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $blog = $this->Blogs->patchEntity($blog, $this->request->data);
-            if ($this->Blogs->save($blog)) {
-                $this->Flash->success(__('The blog has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The blog could not be saved. Please, try again.'));
-            }
-        }
-        $this->set(compact('blog'));
-        $this->set('_serialize', ['blog']);
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Blog id.
-     * @return \Cake\Network\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $blog = $this->Blogs->get($id);
-        if ($this->Blogs->delete($blog)) {
-            $this->Flash->success(__('The blog has been deleted.'));
-        } else {
-            $this->Flash->error(__('The blog could not be deleted. Please, try again.'));
+        if (!$blog) {
+            return;
         }
 
-        return $this->redirect(['action' => 'index']);
+        // TODO: ブログが作成済みの場合はコンテンツをページングで取得
+        $contents = $blog->contents;
+
+        $this->set(compact('$contents'));
+        $this->set('_serialize', ['$contents']);
     }
 }

@@ -21,7 +21,7 @@
 
 <?php foreach ($contents as $content): ?>
   <article class="content">
-    <h2><a href="?id=<?= $content->id ?>"><?= h($content->title) ?></a></h2>
+    <h2><a href="contents/<?= $content->id ?>"><?= h($content->title) ?></a></h2>
     <?= $this->fetch('contentHeader') ?>
     <div class="summary"><?= nl2br(h($content->summary), false) ?></div>
   </article>
