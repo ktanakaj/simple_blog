@@ -24,8 +24,6 @@
   <?= $this->fetch('script') ?>
 </head>
 <body>
-
-<?= $this->Flash->render() ?>
 <header class="header">
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
@@ -36,6 +34,8 @@
   </nav>
   <h1></h1>
 </header>
+
+<?= $this->Flash->render() ?>
 
 <div class="container-fluid">
   <?= $this->fetch('content') ?>

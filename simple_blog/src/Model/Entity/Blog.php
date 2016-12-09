@@ -3,6 +3,7 @@ namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
 use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
+use Cake\Auth\DefaultPasswordHasher;
 
 /**
  * Blog Entity
@@ -42,4 +43,10 @@ class Blog extends Entity
     protected $_hidden = [
         'password'
     ];
+
+    protected function _setPassword($value)
+    {
+        $hasher = new DefaultPasswordHasher();
+        return $hasher->hash($value);
+    }
 }

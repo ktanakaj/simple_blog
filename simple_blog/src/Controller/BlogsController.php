@@ -22,7 +22,7 @@ class BlogsController extends AppController
 
         // ブログがまだ作成されていない場合は管理画面に飛ばす
         if (!$this->blog) {
-            return $this->redirect(['prefix' => 'admin', 'controller' => 'Blogs', 'action' => 'new']);
+            return $this->redirect(['prefix' => 'admin', 'controller' => 'Blogs', 'action' => 'add']);
         }
 
         $this->set('blog', $this->blog);

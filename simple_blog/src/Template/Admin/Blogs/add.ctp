@@ -1,24 +1,35 @@
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('List Blogs'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('List Contents'), ['controller' => 'Contents', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Content'), ['controller' => 'Contents', 'action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('List Oauth'), ['controller' => 'Oauth', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Oauth'), ['controller' => 'Oauth', 'action' => 'add']) ?></li>
-    </ul>
-</nav>
-<div class="blogs form large-9 medium-8 columns content">
-    <?= $this->Form->create($blog) ?>
-    <fieldset>
-        <legend><?= __('Add Blog') ?></legend>
-        <?php
-            echo $this->Form->input('title');
-            echo $this->Form->input('mail_address');
-            echo $this->Form->input('password');
-            echo $this->Form->input('last_login', ['empty' => true]);
-        ?>
-    </fieldset>
-    <?= $this->Form->button(__('Submit')) ?>
-    <?= $this->Form->end() ?>
-</div>
+<?php
+/**
+ * 簡易ブログアプリ「Simple Blog」
+ *
+ * @package    SimpleBlog
+ * @version    0.3
+ * @author     Koichi Tanaka
+ * @copyright  Copyright © 2016 Koichi Tanaka
+ *
+ * @param Blog $blog ブログ情報。
+ */
+?>
+<h1>ブログの初期設定</h1>
+
+<?= $this->Form->create($blog) ?>
+  <fieldset class="form-group">
+    <?= $this->Form->input('title', ['label' => 'ブログタイトル']); ?>
+  </fieldset>
+
+  <fieldset class="form-group">
+    <?= $this->Form->input('mail_address', ['label' => 'メールアドレス']); ?>
+    <small>※ 一意な値であればメールアドレス以外でも指定可能です。</small>
+  </fieldset>
+
+  <fieldset class="form-group">
+    <?= $this->Form->input('password', ['label' => 'パスワード']); ?>
+  </fieldset>
+
+  <fieldset class="form-group">
+    <label for="password2">パスワード再入力</label>
+    <input type="password" name="password_raw2" id="password2" value="<?= h($blog->password_raw2) ?>" maxlength="100" required>
+  </fieldset>
+
+  <?= $this->Form->button('設定', ['class' => 'btn btn-primary btn-lg']) ?>
+<?= $this->Form->end() ?>

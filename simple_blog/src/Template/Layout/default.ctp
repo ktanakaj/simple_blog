@@ -25,6 +25,7 @@
 
 <div class="layout">
   <?= $this->Flash->render() ?>
+
   <header>
     <h1><?= h($blog->title) ?></h1>
   </header>

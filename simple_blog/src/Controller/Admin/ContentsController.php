@@ -10,40 +10,6 @@ use App\Controller\Admin\AppController;
  */
 class ContentsController extends AppController
 {
-
-    /**
-     * Index method
-     *
-     * @return \Cake\Network\Response|null
-     */
-    public function index()
-    {
-        $this->paginate = [
-            'contain' => ['Blogs']
-        ];
-        $contents = $this->paginate($this->Contents);
-
-        $this->set(compact('contents'));
-        $this->set('_serialize', ['contents']);
-    }
-
-    /**
-     * View method
-     *
-     * @param string|null $id Content id.
-     * @return \Cake\Network\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $content = $this->Contents->get($id, [
-            'contain' => ['Blogs', 'Tags']
-        ]);
-
-        $this->set('content', $content);
-        $this->set('_serialize', ['content']);
-    }
-
     /**
      * Add method
      *
@@ -54,12 +20,13 @@ class ContentsController extends AppController
         $content = $this->Contents->newEntity();
         if ($this->request->is('post')) {
             $content = $this->Contents->patchEntity($content, $this->request->data);
+            $content->blog_id = $this->blog->id;
             if ($this->Contents->save($content)) {
-                $this->Flash->success(__('The content has been saved.'));
+                $this->Flash->success('保存しました。');
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['controller' => 'Blogs', 'action' => 'index']);
             } else {
-                $this->Flash->error(__('The content could not be saved. Please, try again.'));
+                $this->Flash->error('保存に失敗しました。入力内容を再確認してください。');
             }
         }
         $blogs = $this->Contents->Blogs->find('list', ['limit' => 200]);
@@ -81,12 +48,13 @@ class ContentsController extends AppController
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $content = $this->Contents->patchEntity($content, $this->request->data);
+            $content->blog_id = $this->blog->id;
             if ($this->Contents->save($content)) {
-                $this->Flash->success(__('The content has been saved.'));
+                $this->Flash->success('保存しました。');
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['controller' => 'Blogs', 'action' => 'index']);
             } else {
-                $this->Flash->error(__('The content could not be saved. Please, try again.'));
+                $this->Flash->error('保存に失敗しました。入力内容を再確認してください。');
             }
         }
         $blogs = $this->Contents->Blogs->find('list', ['limit' => 200]);
@@ -106,11 +74,11 @@ class ContentsController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $content = $this->Contents->get($id);
         if ($this->Contents->delete($content)) {
-            $this->Flash->success(__('The content has been deleted.'));
+            $this->Flash->success('削除しました。');
         } else {
-            $this->Flash->error(__('The content could not be deleted. Please, try again.'));
+            $this->Flash->error('削除に失敗しました。もう一度実行してください。');
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(['controller' => 'Blogs', 'action' => 'index']);
     }
 }

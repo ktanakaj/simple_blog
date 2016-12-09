@@ -10,6 +10,12 @@ use App\Controller\Admin\AppController;
  */
 class BlogsController extends AppController
 {
+    public function initialize()
+    {
+        parent::initialize();
+        // 許可するアクション一覧に logout と add を設定
+        $this->Auth->allow(['logout', 'add']);
+    }
 
     /**
      * Index method
@@ -25,23 +31,6 @@ class BlogsController extends AppController
     }
 
     /**
-     * View method
-     *
-     * @param string|null $id Blog id.
-     * @return \Cake\Network\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $blog = $this->Blogs->get($id, [
-            'contain' => ['Contents', 'Oauth']
-        ]);
-
-        $this->set('blog', $blog);
-        $this->set('_serialize', ['blog']);
-    }
-
-    /**
      * Add method
      *
      * @return \Cake\Network\Response|void Redirects on successful add, renders view otherwise.
@@ -52,11 +41,11 @@ class BlogsController extends AppController
         if ($this->request->is('post')) {
             $blog = $this->Blogs->patchEntity($blog, $this->request->data);
             if ($this->Blogs->save($blog)) {
-                $this->Flash->success(__('The blog has been saved.'));
+                $this->Flash->success('保存しました。');
 
                 return $this->redirect(['action' => 'index']);
             } else {
-                $this->Flash->error(__('The blog could not be saved. Please, try again.'));
+                $this->Flash->error('保存に失敗しました。入力内容を再確認してください。');
             }
         }
         $this->set(compact('blog'));
@@ -78,34 +67,32 @@ class BlogsController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $blog = $this->Blogs->patchEntity($blog, $this->request->data);
             if ($this->Blogs->save($blog)) {
-                $this->Flash->success(__('The blog has been saved.'));
+                $this->Flash->success('保存しました。');
 
                 return $this->redirect(['action' => 'index']);
             } else {
-                $this->Flash->error(__('The blog could not be saved. Please, try again.'));
+                $this->Flash->error('保存に失敗しました。入力内容を再確認してください。');
             }
         }
         $this->set(compact('blog'));
         $this->set('_serialize', ['blog']);
     }
 
-    /**
-     * Delete method
-     *
-     * @param string|null $id Blog id.
-     * @return \Cake\Network\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
+    public function login()
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $blog = $this->Blogs->get($id);
-        if ($this->Blogs->delete($blog)) {
-            $this->Flash->success(__('The blog has been deleted.'));
-        } else {
-            $this->Flash->error(__('The blog could not be deleted. Please, try again.'));
+        if ($this->request->is('post')) {
+            $blog = $this->Auth->identify();
+            if ($blog) {
+                $this->Auth->setUser($blog);
+                return $this->redirect($this->Auth->redirectUrl());
+            }
+            $this->Flash->error('ユーザー名またはパスワードが不正です。');
         }
+    }
 
-        return $this->redirect(['action' => 'index']);
+    public function logout()
+    {
+        $this->Flash->success('ログアウトしました。');
+        return $this->redirect($this->Auth->logout());
     }
 }
